@@ -6,6 +6,8 @@
     <link rel="stylesheet" type="text/css" href="static/components/grid.min.css">
     <link rel="stylesheet" type="text/css" href="static/components/message.min.css">
     <link rel="stylesheet" type="text/css" href="static/components/icon.min.css">
+    <link rel="stylesheet" type="text/css" href="static/components/progress.min.css">
+    <script type="text/javascript" src="static/components/progress.min.js"></script>
     <title>Welcome</title>
     <style type="text/css">
       body {
@@ -35,7 +37,14 @@
     <div class="ui container">
       <div class="ui grid">
         <div class="ui row"></div>
-        <div class="ui row"><h3 class="ui header"></h3></div>
+        <div class="ui row centered">
+          <div class="ui eight wide column">
+            <div class="ui teal progress active" data-percent="{{progress}}">
+              <div class="bar"></div>
+              <div class="label">{{progress}}%</div>
+            </div>
+          </div>
+        </div>
         <div class="ui row">
           <div class="ui one wide column"></div>
           <div class="ui six wide column pics left_part">
@@ -114,6 +123,7 @@
         $('.dimmer').dimmer({
 //          closable: false,
         }); 
+        $('.progress').progress();
       });
       $('.left_trigger').hover(
         function(){
