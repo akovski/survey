@@ -10,8 +10,11 @@ userlist = dict() #keep record of current progress of all users
 datalist = dict()
 groupdata = [] 
 group = []
+params = {}
 max_people = 6
 max_group  = 4
+
+param_name = ["A", "B", "C", "D", "E", "F"]
 
 # 24 people * 600 = (3 * 800) * 6
 # 4 stages, each 600 pics
@@ -45,20 +48,41 @@ def load_users():
             users[name] = int(f.read()) 
     return users
 
+def load_data_params(data_dir):
+    params = {}
+    for root, dirs, files in os.walk(data_dir):
+        for file in files:
+            if file.endswith('.TXT'):
+                name = file[:-4]
+                with open(os.path.join(root, file), 'r') as f:
+                    lines = f.readlines()
+                    try:
+                        params[name] = map(lambda x : float(x.strip()), lines)
+                    except:
+                        print root, file
+    return params
+
+def get_param(name):
+    return params.get(name, None)
+
 def save_group():
     with open('group.txt', 'w') as f:
         for g in group:
             print >>f, ' '.join(g)
 
 def load_group(groupfile):
+    global max_people
     res = []
     with open(groupfile, 'r') as f:
         for line in f.readlines():
             res.append(line.strip().split())
+    while len(res) < max_group:
+        res.append([])
+    max_people = min(len(x) for x in res) + 1
     return res
 
 def new_user(user):
-    global userlist
+    global userlist, max_people
     x = 0
     while x < len(group):
         if user in group[x]:
@@ -68,7 +92,9 @@ def new_user(user):
             break
         x += 1
     if x == len(group):
-        group.append([user])
+        max_people += 1
+        new_user(user)
+        return
     data = [[x, y] for x, y in groupdata[x]]
     random.seed(user)
     random.shuffle(data)
@@ -97,8 +123,24 @@ def index():
         return render_template('end.html')
     pair = get_pair(name)
     random.shuffle(pair)
+    group_num = 100
+
+    params_left = []
+    params_right = []
+    for i, pname in enumerate(param_name):
+        if get_param(pair[0])[i] > get_param(pair[1])[i]:
+            params_left.append((pname, 'up'))
+            params_right.append((pname, 'down'))
+        else:
+            params_left.append((pname, 'down'))
+            params_right.append((pname, 'up'))
+
+    print params_left, params_right
     return render_template('index.html', left_id=pair[0], right_id=pair[1], 
-            progress= (userlist[name] * 100 + len(get_datalist(name)) - 1) / len(get_datalist(name)))
+            group = userlist[name] / group_num + 1,
+            progress= (userlist[name] % group_num * 100 + group_num - 1) / group_num,
+            params_left = params_left,
+            params_right = params_right)
 
 def log_choice(name, a, b): #choice a over b
     print name, a, b
@@ -146,9 +188,10 @@ if __name__ == '__main__':
     datalist = load_datalist()
     group    = load_group('group.txt')
     print group
+    params   = load_data_params('../data')
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--debug', action='store_true')
     args = parser.parse_args()
 
-    app.run(host='0.0.0.0',port=8888, debug=args.debug)
+    app.run(host='0.0.0.0',port=9999, debug=args.debug, threaded=True)

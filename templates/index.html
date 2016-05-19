@@ -80,6 +80,11 @@
                 </div>
               </div>
             </div>
+            <div class='ui sixteen wide column'>
+              {% for name, value in params_left %}
+              <div class="ui row"><div class="ui left aligned container"><b>{{name}}:</b><i class="thumbs {{value}} icon large"></i></div></div>
+              {% endfor %}
+            </div>
           </div>
           <div class="ui two wide column"></div>
           <div class="ui six wide column pics right_part">
@@ -111,6 +116,11 @@
                   </h2>
                 </div>
               </div>
+            </div>
+            <div class='ui sixteen wide column'>
+              {% for name, value in params_right %}
+              <div class="ui row"><div class="ui left aligned container"><b>{{name}}:</b><i class="thumbs {{value}} icon large"></i></div></div>
+              {% endfor %}
             </div>
           </div>
           <div class="ui one wide column"></div>
@@ -151,6 +161,8 @@
       function choose_right() {
         $.post('/choose', {left:left_id, right:right_id, choice: right_id}, function(data, status){window.location.href='/'});
       }
+      $('.up.icon').addClass('green');
+      $('.down.icon').addClass('red');
     </script>
   </body>
 </html>
